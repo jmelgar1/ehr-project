@@ -9,7 +9,7 @@ services:
     ports:
       - "5436:5432"
     volumes:
-      - postgres-auth-data:/var/lib/postgresql/data
+      - postgres-auth-data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${AUTH_DB_USER:-ehr_user} -d ${AUTH_DB_NAME:-ehr_auth_db}"]
       interval: 10s
@@ -26,7 +26,7 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - postgres-patient-data:/var/lib/postgresql/data
+      - postgres-patient-data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${PATIENT_DB_USER:-ehr_user} -d ${PATIENT_DB_NAME:-ehr_patient_db}"]
       interval: 10s
@@ -43,7 +43,7 @@ services:
     ports:
       - "5434:5432"
     volumes:
-      - postgres-session-data:/var/lib/postgresql/data
+      - postgres-session-data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${SESSION_DB_USER:-ehr_user} -d ${SESSION_DB_NAME:-ehr_session_db}"]
       interval: 10s
@@ -60,7 +60,7 @@ services:
     ports:
       - "5435:5432"
     volumes:
-      - postgres-notification-data:/var/lib/postgresql/data
+      - postgres-notification-data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${NOTIFICATION_DB_USER:-ehr_user} -d ${NOTIFICATION_DB_NAME:-ehr_notification_db}"]
       interval: 10s
@@ -77,7 +77,7 @@ services:
     ports:
       - "5438:5432"
     volumes:
-      - postgres-assessment-data:/var/lib/postgresql/data
+      - postgres-assessment-data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${ASSESSMENT_DB_USER:-ehr_user} -d ${ASSESSMENT_DB_NAME:-ehr_assessment_db}"]
       interval: 10s

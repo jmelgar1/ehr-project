@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5436/ehr_auth_db
+    username: ehr_user
+    password: ehr_password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+jwt:
+  secret: dev-secret-key-not-for-production

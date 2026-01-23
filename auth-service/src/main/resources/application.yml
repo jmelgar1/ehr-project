@@ -1,0 +1,16 @@
+server:
+  port: 8084
+
+spring:
+  profiles:
+    active: local #default application change to test other connections
+  application:
+    name: auth-service
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    open-in-view: false
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400000}
