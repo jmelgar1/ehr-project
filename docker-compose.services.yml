@@ -1,0 +1,131 @@
+services:
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: ehr-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - AUTH_SERVICE_URL=http://auth-service:8084
+      - PATIENT_SERVICE_URL=http://patient-service:8081
+      - SESSION_SERVICE_URL=http://session-service:8082
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8083
+      - ASSESSMENT_SERVICE_URL=http://assessment-service:8086
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      auth-service:
+        condition: service_started
+      patient-service:
+        condition: service_started
+      session-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
+      assessment-service:
+        condition: service_started
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: ehr-auth-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-auth:5432/${AUTH_DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${AUTH_DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${AUTH_DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+
+  patient-service:
+    build:
+      context: ./patient-service
+      dockerfile: Dockerfile
+    container_name: ehr-patient-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-patient:5432/${PATIENT_DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${PATIENT_DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${PATIENT_DB_PASSWORD}
+    depends_on:
+      postgres-patient:
+        condition: service_healthy
+
+  session-service:
+    build:
+      context: ./session-service
+      dockerfile: Dockerfile
+    container_name: ehr-session-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-session:5432/${SESSION_DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${SESSION_DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${SESSION_DB_PASSWORD}
+      - PATIENT_SERVICE_URL=http://patient-service:8081
+    depends_on:
+      postgres-session:
+        condition: service_healthy
+      patient-service:
+        condition: service_started
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: ehr-notification-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-notification:5432/${NOTIFICATION_DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${NOTIFICATION_DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${NOTIFICATION_DB_PASSWORD}
+      - PATIENT_SERVICE_URL=http://patient-service:8081
+      - SESSION_SERVICE_URL=http://session-service:8082
+    depends_on:
+      postgres-notification:
+        condition: service_healthy
+      patient-service:
+        condition: service_started
+      session-service:
+        condition: service_started
+
+  assessment-service:
+    build:
+      context: ./assessment-service
+      dockerfile: Dockerfile
+    container_name: ehr-assessment-service
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-assessment:5432/${ASSESSMENT_DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${ASSESSMENT_DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${ASSESSMENT_DB_PASSWORD}
+      - PATIENT_SERVICE_URL=http://patient-service:8081
+    depends_on:
+      postgres-assessment:
+        condition: service_healthy
+      patient-service:
+        condition: service_started
+
+  ehr-app:
+    build:
+      context: ./ehr-app
+      dockerfile: Dockerfile
+    container_name: ehr-app
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway

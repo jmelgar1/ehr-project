@@ -1,0 +1,110 @@
+services:
+  postgres-auth:
+    image: postgres:18.1-alpine
+    container_name: ehr-postgres-auth
+    environment:
+      POSTGRES_DB: ${AUTH_DB_NAME:-ehr_auth_db}
+      POSTGRES_USER: ${AUTH_DB_USER:-ehr_user}
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD:-ehr_password}
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres-auth-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AUTH_DB_USER:-ehr_user} -d ${AUTH_DB_NAME:-ehr_auth_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-patient:
+    image: postgres:18.1-alpine
+    container_name: ehr-postgres-patient
+    environment:
+      POSTGRES_DB: ${PATIENT_DB_NAME:-ehr_patient_db}
+      POSTGRES_USER: ${PATIENT_DB_USER:-ehr_user}
+      POSTGRES_PASSWORD: ${PATIENT_DB_PASSWORD:-ehr_password}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-patient-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PATIENT_DB_USER:-ehr_user} -d ${PATIENT_DB_NAME:-ehr_patient_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-session:
+    image: postgres:18.1-alpine
+    container_name: ehr-postgres-session
+    environment:
+      POSTGRES_DB: ${SESSION_DB_NAME:-ehr_session_db}
+      POSTGRES_USER: ${SESSION_DB_USER:-ehr_user}
+      POSTGRES_PASSWORD: ${SESSION_DB_PASSWORD:-ehr_password}
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-session-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${SESSION_DB_USER:-ehr_user} -d ${SESSION_DB_NAME:-ehr_session_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-notification:
+    image: postgres:18.1-alpine
+    container_name: ehr-postgres-notification
+    environment:
+      POSTGRES_DB: ${NOTIFICATION_DB_NAME:-ehr_notification_db}
+      POSTGRES_USER: ${NOTIFICATION_DB_USER:-ehr_user}
+      POSTGRES_PASSWORD: ${NOTIFICATION_DB_PASSWORD:-ehr_password}
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres-notification-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${NOTIFICATION_DB_USER:-ehr_user} -d ${NOTIFICATION_DB_NAME:-ehr_notification_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-assessment:
+    image: postgres:18.1-alpine
+    container_name: ehr-postgres-assessment
+    environment:
+      POSTGRES_DB: ${ASSESSMENT_DB_NAME:-ehr_assessment_db}
+      POSTGRES_USER: ${ASSESSMENT_DB_USER:-ehr_user}
+      POSTGRES_PASSWORD: ${ASSESSMENT_DB_PASSWORD:-ehr_password}
+    ports:
+      - "5438:5432"
+    volumes:
+      - postgres-assessment-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ASSESSMENT_DB_USER:-ehr_user} -d ${ASSESSMENT_DB_NAME:-ehr_assessment_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: ehr-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - postgres-auth
+      - postgres-patient
+      - postgres-session
+      - postgres-notification
+      - postgres-assessment
+
+volumes:
+  postgres-auth-data:
+  postgres-patient-data:
+  postgres-session-data:
+  postgres-notification-data:
+  postgres-assessment-data:
+  pgadmin-data:
