@@ -3,6 +3,8 @@ package com.ehr.auth.service;
 import com.ehr.auth.dto.AuthResponse;
 import com.ehr.auth.dto.LoginRequest;
 import com.ehr.auth.dto.RegisterRequest;
+import com.ehr.auth.exception.DuplicateResourceException;
+import com.ehr.auth.exception.InvalidCredentialsException;
 import com.ehr.auth.model.User;
 import com.ehr.auth.repository.UserRepository;
 import com.ehr.auth.security.JwtUtil;
@@ -24,10 +26,10 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.username())) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new DuplicateResourceException("Username already exists");
         }
         if (userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email already exists");
+            throw new DuplicateResourceException("Email already exists");
         }
 
         User user = User.builder()
@@ -48,10 +50,10 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByUsername(request.username())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
+                .orElseThrow(InvalidCredentialsException::new);
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new IllegalArgumentException("Invalid username or password");
+            throw new InvalidCredentialsException();
         }
 
         String token = jwtUtil.generateToken(user);
