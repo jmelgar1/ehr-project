@@ -1,13 +1,13 @@
 package com.ehr.auth.controller;
 
 import com.ehr.auth.config.SecurityConfig;
-import com.ehr.auth.dto.AuthResponse;
 import com.ehr.auth.exception.DuplicateResourceException;
 import com.ehr.auth.exception.GlobalExceptionHandler;
 import com.ehr.auth.exception.InvalidCredentialsException;
 import com.ehr.auth.model.enums.UserRole;
 import com.ehr.auth.service.AuthService;
-import com.ehr.auth.util.TestRequests;
+
+import static com.ehr.auth.utils.AuthControllerTestUtils.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +38,10 @@ class AuthControllerTest {
 
     @Test
     void register_withValidData_returns200AndAuthResponse() throws Exception {
-        AuthResponse response = new AuthResponse("jwt-token", "newuser", UserRole.NURSE);
+        var response = authResponse("jwt-token", "newuser", UserRole.NURSE);
         when(authService.register(any())).thenReturn(response);
 
-        var request = TestRequests.register("newuser", UserRole.NURSE);
+        var request = register("newuser", UserRole.NURSE);
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -56,7 +56,7 @@ class AuthControllerTest {
     void register_duplicateUsername_returns409() throws Exception {
         when(authService.register(any())).thenThrow(new DuplicateResourceException("Username already exists"));
 
-        var request = TestRequests.register("existinguser", UserRole.THERAPIST);
+        var request = register("existinguser", UserRole.THERAPIST);
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -67,10 +67,10 @@ class AuthControllerTest {
 
     @Test
     void login_withValidCredentials_returns200AndAuthResponse() throws Exception {
-        AuthResponse response = new AuthResponse("login-token", "testuser", UserRole.ADMIN);
+        var response = authResponse("login-token", "testuser", UserRole.ADMIN);
         when(authService.login(any())).thenReturn(response);
 
-        var request = TestRequests.login("testuser");
+        var request = login("testuser");
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -85,7 +85,7 @@ class AuthControllerTest {
     void login_withBadCredentials_returns401() throws Exception {
         when(authService.login(any())).thenThrow(new InvalidCredentialsException());
 
-        var request = TestRequests.login("testuser", "wrongpassword");
+        var request = login("testuser", "wrongpassword");
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -96,10 +96,10 @@ class AuthControllerTest {
 
     @Test
     void authEndpoints_accessibleWithoutAuthentication() throws Exception {
-        AuthResponse response = new AuthResponse("token", "user", UserRole.NURSE);
+        var response = authResponse("token", "user", UserRole.NURSE);
         when(authService.login(any())).thenReturn(response);
 
-        var request = TestRequests.login("user", "pass");
+        var request = login("user", "pass");
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

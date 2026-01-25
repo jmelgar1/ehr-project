@@ -5,6 +5,7 @@ import com.ehr.auth.model.enums.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.ehr.auth.utils.JwtUtilTestUtils.user;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class JwtUtilTest {
@@ -18,15 +19,7 @@ class JwtUtilTest {
     @BeforeEach
     void setUp() {
         jwtUtil = new JwtUtil(TEST_SECRET, TEST_EXPIRATION);
-        testUser = User.builder()
-                .username("testuser")
-                .email("test@example.com")
-                .password("hashedpassword")
-                .firstName("Test")
-                .lastName("User")
-                .role(UserRole.THERAPIST)
-                .enabled(true)
-                .build();
+        testUser = user("testuser", UserRole.THERAPIST);
     }
 
     @Test
@@ -82,11 +75,8 @@ class JwtUtilTest {
     @Test
     void getRoleFromToken_worksForAllRoles() {
         for (UserRole role : UserRole.values()) {
-            User user = User.builder()
-                    .username("user_" + role.name())
-                    .role(role)
-                    .build();
-            String token = jwtUtil.generateToken(user);
+            var roleUser = user("user_" + role.name(), role);
+            String token = jwtUtil.generateToken(roleUser);
 
             assertThat(jwtUtil.getRoleFromToken(token)).isEqualTo(role);
         }
