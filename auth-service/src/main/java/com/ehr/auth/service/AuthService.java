@@ -7,7 +7,7 @@ import com.ehr.auth.exception.DuplicateResourceException;
 import com.ehr.auth.exception.InvalidCredentialsException;
 import com.ehr.auth.model.User;
 import com.ehr.auth.repository.UserRepository;
-import com.ehr.auth.security.JwtUtil;
+import com.ehr.auth.security.JwtTokenProvider;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,12 +16,12 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     public AuthResponse register(RegisterRequest request) {
@@ -44,7 +44,7 @@ public class AuthService {
 
         userRepository.save(user);
 
-        String token = jwtUtil.generateToken(user);
+        String token = jwtTokenProvider.generateToken(user);
         return new AuthResponse(token, user.getUsername(), user.getRole());
     }
 
@@ -56,7 +56,7 @@ public class AuthService {
             throw new InvalidCredentialsException();
         }
 
-        String token = jwtUtil.generateToken(user);
+        String token = jwtTokenProvider.generateToken(user);
         return new AuthResponse(token, user.getUsername(), user.getRole());
     }
 }

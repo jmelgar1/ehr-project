@@ -1,7 +1,6 @@
 package com.ehr.auth.security;
 
 import com.ehr.auth.model.User;
-import com.ehr.auth.model.enums.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -10,9 +9,10 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
-public class JwtUtil {
+public class JwtTokenProvider {
 
     private static final String JWT_SECRET_PROPERTY = "${jwt.secret}";
     private static final String JWT_EXPIRATION_PROPERTY = "${jwt.expiration}";
@@ -20,7 +20,7 @@ public class JwtUtil {
     private final SecretKey key;
     private final long expiration;
 
-    public JwtUtil(@Value(JWT_SECRET_PROPERTY) String secret, @Value(JWT_EXPIRATION_PROPERTY) long expiration) {
+    public JwtTokenProvider(@Value(JWT_SECRET_PROPERTY) String secret, @Value(JWT_EXPIRATION_PROPERTY) long expiration) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
         this.expiration = expiration;
     }
@@ -30,8 +30,7 @@ public class JwtUtil {
         Date expiryDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
-                .subject(user.getUsername())
-                .claim("role", user.getRole().name())
+                .subject(user.getId().toString())
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(key)
@@ -47,15 +46,9 @@ public class JwtUtil {
         }
     }
 
-    public String getUsernameFromToken(String token) {
+    public UUID getUserIdFromToken(String token) {
         Claims claims = Jwts.parser().verifyWith(key).build()
                 .parseSignedClaims(token).getPayload();
-        return claims.getSubject();
-    }
-
-    public UserRole getRoleFromToken(String token) {
-        Claims claims = Jwts.parser().verifyWith(key).build()
-                .parseSignedClaims(token).getPayload();
-        return UserRole.valueOf(claims.get("role", String.class));
+        return UUID.fromString(claims.getSubject());
     }
 }

@@ -5,7 +5,7 @@ import com.ehr.auth.exception.InvalidCredentialsException;
 import com.ehr.auth.model.User;
 import com.ehr.auth.model.enums.UserRole;
 import com.ehr.auth.repository.UserRepository;
-import com.ehr.auth.security.JwtUtil;
+import com.ehr.auth.security.JwtTokenProvider;
 
 import static com.ehr.auth.utils.AuthServiceTestUtils.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,24 +33,24 @@ class AuthServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private JwtUtil jwtUtil;
+    private JwtTokenProvider jwtTokenProvider;
 
     private AuthService authService;
 
     @BeforeEach
     void setUp() {
-        authService = new AuthService(userRepository, passwordEncoder, jwtUtil);
+        authService = new AuthService(userRepository, passwordEncoder, jwtTokenProvider);
     }
 
     @Test
-    void register_succeeds_savesUserAndReturnsAuthResponse() {
+    void givenValidRegistrationRequest_whenRegister_thenSavesUserAndReturnsAuthResponse() {
         var request = register("newuser", UserRole.NURSE);
 
         when(userRepository.existsByUsername("newuser")).thenReturn(false);
         when(userRepository.existsByEmail("newuser@example.com")).thenReturn(false);
         when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(jwtUtil.generateToken(any(User.class))).thenReturn("test-jwt-token");
+        when(jwtTokenProvider.generateToken(any(User.class))).thenReturn("test-jwt-token");
 
         var response = authService.register(request);
 
@@ -61,7 +61,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void register_throwsDuplicateResourceException_forExistingUsername() {
+    void givenExistingUsername_whenRegister_thenThrowsDuplicateResourceException() {
         var request = register("existinguser", UserRole.THERAPIST);
 
         when(userRepository.existsByUsername("existinguser")).thenReturn(true);
@@ -72,7 +72,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void register_throwsDuplicateResourceException_forExistingEmail() {
+    void givenExistingEmail_whenRegister_thenThrowsDuplicateResourceException() {
         var request = register("existingEmail", UserRole.ADMIN);
 
         when(userRepository.existsByUsername("existingEmail")).thenReturn(false);
@@ -84,13 +84,13 @@ class AuthServiceTest {
     }
 
     @Test
-    void login_succeeds_returnsAuthResponse() {
+    void givenValidCredentials_whenLogin_thenReturnsAuthResponse() {
         var request = login("testuser");
         var testUser = user("testuser", "encodedPassword", UserRole.COORDINATOR);
 
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(passwordEncoder.matches("password123", "encodedPassword")).thenReturn(true);
-        when(jwtUtil.generateToken(testUser)).thenReturn("login-jwt-token");
+        when(jwtTokenProvider.generateToken(testUser)).thenReturn("login-jwt-token");
 
         var response = authService.login(request);
 
@@ -100,7 +100,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void login_throwsInvalidCredentialsException_forUnknownUser() {
+    void givenUnknownUser_whenLogin_thenThrowsInvalidCredentialsException() {
         var request = login("unknown");
 
         when(userRepository.findByUsername("unknown")).thenReturn(Optional.empty());
@@ -110,7 +110,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void login_throwsInvalidCredentialsException_forWrongPassword() {
+    void givenWrongPassword_whenLogin_thenThrowsInvalidCredentialsException() {
         var request = login("testuser", "wrongpassword");
         var testUser = user("testuser", "encodedPassword", UserRole.RESEARCHER);
 

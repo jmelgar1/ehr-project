@@ -37,7 +37,7 @@ class AuthControllerTest {
     private AuthService authService;
 
     @Test
-    void register_withValidData_returns200AndAuthResponse() throws Exception {
+    void givenValidRegistrationData_whenRegister_thenReturns200AndAuthResponse() throws Exception {
         var response = authResponse("jwt-token", "newuser", UserRole.NURSE);
         when(authService.register(any())).thenReturn(response);
 
@@ -53,7 +53,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void register_duplicateUsername_returns409() throws Exception {
+    void givenDuplicateUsername_whenRegister_thenReturns409() throws Exception {
         when(authService.register(any())).thenThrow(new DuplicateResourceException("Username already exists"));
 
         var request = register("existinguser", UserRole.THERAPIST);
@@ -66,7 +66,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void login_withValidCredentials_returns200AndAuthResponse() throws Exception {
+    void givenValidCredentials_whenLogin_thenReturns200AndAuthResponse() throws Exception {
         var response = authResponse("login-token", "testuser", UserRole.ADMIN);
         when(authService.login(any())).thenReturn(response);
 
@@ -82,7 +82,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void login_withBadCredentials_returns401() throws Exception {
+    void givenBadCredentials_whenLogin_thenReturns401() throws Exception {
         when(authService.login(any())).thenThrow(new InvalidCredentialsException());
 
         var request = login("testuser", "wrongpassword");
@@ -95,7 +95,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void authEndpoints_accessibleWithoutAuthentication() throws Exception {
+    void givenNoAuthentication_whenAccessAuthEndpoints_thenReturnsOk() throws Exception {
         var response = authResponse("token", "user", UserRole.NURSE);
         when(authService.login(any())).thenReturn(response);
 
@@ -108,7 +108,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void nonAuthEndpoints_returnForbiddenWithoutAuthentication() throws Exception {
+    void givenNoAuthentication_whenAccessProtectedEndpoints_thenReturnsForbidden() throws Exception {
         mockMvc.perform(get("/api/some-protected-resource"))
                 .andExpect(status().isForbidden());
     }
