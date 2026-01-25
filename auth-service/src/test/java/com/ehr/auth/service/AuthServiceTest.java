@@ -2,10 +2,14 @@ package com.ehr.auth.service;
 
 import com.ehr.auth.exception.DuplicateResourceException;
 import com.ehr.auth.exception.InvalidCredentialsException;
+import com.ehr.auth.exception.ResourceNotFoundException;
+import com.ehr.auth.exception.SelfDeletionException;
 import com.ehr.auth.model.User;
 import com.ehr.auth.model.enums.UserRole;
 import com.ehr.auth.repository.UserRepository;
 import com.ehr.auth.security.JwtTokenProvider;
+
+import java.util.UUID;
 
 import static com.ehr.auth.utils.AuthServiceTestUtils.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -119,5 +123,39 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> authService.login(request))
                 .isInstanceOf(InvalidCredentialsException.class);
+    }
+
+    @Test
+    void givenExistingUser_whenDeleteUser_thenUserIsDeleted() {
+        var userId = UUID.randomUUID();
+        var currentUserId = UUID.randomUUID();
+        var testUser = user("testuser", UserRole.NURSE);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+
+        authService.deleteUser(userId, currentUserId);
+
+        verify(userRepository).delete(testUser);
+    }
+
+    @Test
+    void givenNonExistentUser_whenDeleteUser_thenThrowsResourceNotFoundException() {
+        var userId = UUID.randomUUID();
+        var currentUserId = UUID.randomUUID();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> authService.deleteUser(userId, currentUserId))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("User not found");
+    }
+
+    @Test
+    void givenSameUserIdAsCurrentUser_whenDeleteUser_thenThrowsSelfDeletionException() {
+        var userId = UUID.randomUUID();
+
+        assertThatThrownBy(() -> authService.deleteUser(userId, userId))
+                .isInstanceOf(SelfDeletionException.class)
+                .hasMessage("Cannot delete your own account");
     }
 }

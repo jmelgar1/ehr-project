@@ -5,11 +5,15 @@ import com.ehr.auth.dto.LoginRequest;
 import com.ehr.auth.dto.RegisterRequest;
 import com.ehr.auth.exception.DuplicateResourceException;
 import com.ehr.auth.exception.InvalidCredentialsException;
+import com.ehr.auth.exception.ResourceNotFoundException;
+import com.ehr.auth.exception.SelfDeletionException;
 import com.ehr.auth.model.User;
 import com.ehr.auth.repository.UserRepository;
 import com.ehr.auth.security.JwtTokenProvider;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -58,5 +62,14 @@ public class AuthService {
 
         String token = jwtTokenProvider.generateToken(user);
         return new AuthResponse(token, user.getUsername(), user.getRole());
+    }
+
+    public void deleteUser(UUID userId, UUID currentUserId) {
+        if (userId.equals(currentUserId)) {
+            throw new SelfDeletionException();
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        userRepository.delete(user);
     }
 }
