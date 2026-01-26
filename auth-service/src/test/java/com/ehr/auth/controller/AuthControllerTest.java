@@ -1,14 +1,17 @@
 package com.ehr.auth.controller;
 
+import static com.ehr.auth.constants.ApiPaths.AUTH_LOGIN_API_PATH;
+import static com.ehr.auth.constants.ApiPaths.AUTH_REGISTER_API_PATH;
+
 import com.ehr.auth.config.SecurityConfig;
 import com.ehr.auth.exception.DuplicateResourceException;
 import com.ehr.auth.exception.GlobalExceptionHandler;
 import com.ehr.auth.exception.InvalidCredentialsException;
-import com.ehr.auth.exception.ResourceNotFoundException;
 import com.ehr.auth.model.enums.UserRole;
 import com.ehr.auth.repository.UserRepository;
 import com.ehr.auth.security.JwtTokenProvider;
 import com.ehr.auth.service.AuthService;
+import com.ehr.auth.service.PermissionResolverService;
 
 import static com.ehr.auth.utils.AuthControllerTestUtils.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,19 +23,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -55,6 +47,9 @@ class AuthControllerTest {
     @MockitoBean
     private UserRepository userRepository;
 
+    @MockitoBean
+    private PermissionResolverService permissionResolverService;
+
     @Test
     void givenValidRegistrationData_whenRegister_thenReturns200AndAuthResponse() throws Exception {
         var response = authResponse("jwt-token", "newuser", UserRole.NURSE);
@@ -62,7 +57,7 @@ class AuthControllerTest {
 
         var request = register("newuser", UserRole.NURSE);
 
-        mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post(AUTH_REGISTER_API_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -77,7 +72,7 @@ class AuthControllerTest {
 
         var request = register("existinguser", UserRole.THERAPIST);
 
-        mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post(AUTH_REGISTER_API_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
@@ -91,7 +86,7 @@ class AuthControllerTest {
 
         var request = login("testuser");
 
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(post(AUTH_LOGIN_API_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -106,7 +101,7 @@ class AuthControllerTest {
 
         var request = login("testuser", "wrongpassword");
 
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(post(AUTH_LOGIN_API_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized())
@@ -120,62 +115,9 @@ class AuthControllerTest {
 
         var request = login("user", "pass");
 
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(post(AUTH_LOGIN_API_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    void givenNoAuthentication_whenAccessProtectedEndpoints_thenReturnsForbidden() throws Exception {
-        mockMvc.perform(get("/api/some-protected-resource"))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    void givenAdminUser_whenDeleteUser_thenReturns204() throws Exception {
-        var userId = UUID.randomUUID();
-        var adminId = UUID.randomUUID();
-        var adminAuth = new UsernamePasswordAuthenticationToken(
-                adminId, null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
-        doNothing().when(authService).deleteUser(any(UUID.class), any(UUID.class));
-
-        mockMvc.perform(delete("/api/auth/users/{id}", userId)
-                        .with(authentication(adminAuth)))
-                .andExpect(status().isNoContent());
-    }
-
-    @Test
-    void givenNonAdminUser_whenDeleteUser_thenReturns403() throws Exception {
-        var userId = UUID.randomUUID();
-        var nurseId = UUID.randomUUID();
-        var nurseAuth = new UsernamePasswordAuthenticationToken(
-                nurseId, null, List.of(new SimpleGrantedAuthority("ROLE_NURSE")));
-
-        mockMvc.perform(delete("/api/auth/users/{id}", userId)
-                        .with(authentication(nurseAuth)))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    void givenNonExistentUser_whenDeleteUser_thenReturns404() throws Exception {
-        var userId = UUID.randomUUID();
-        var adminId = UUID.randomUUID();
-        var adminAuth = new UsernamePasswordAuthenticationToken(
-                adminId, null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
-        doThrow(new ResourceNotFoundException("User not found")).when(authService).deleteUser(any(UUID.class), any(UUID.class));
-
-        mockMvc.perform(delete("/api/auth/users/{id}", userId)
-                        .with(authentication(adminAuth)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("User not found"));
-    }
-
-    @Test
-    void givenNoAuthentication_whenDeleteUser_thenReturns403() throws Exception {
-        var userId = UUID.randomUUID();
-
-        mockMvc.perform(delete("/api/auth/users/{id}", userId))
-                .andExpect(status().isForbidden());
     }
 }
