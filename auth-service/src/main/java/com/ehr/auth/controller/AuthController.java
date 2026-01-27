@@ -6,7 +6,9 @@ import com.ehr.auth.dto.AuthResponse;
 import com.ehr.auth.dto.LoginRequest;
 import com.ehr.auth.dto.RegisterRequest;
 import com.ehr.auth.service.AuthService;
-import com.ehr.auth.service.UserService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

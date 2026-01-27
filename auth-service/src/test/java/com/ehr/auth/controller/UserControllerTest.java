@@ -7,8 +7,8 @@ import com.ehr.auth.exception.GlobalExceptionHandler;
 import com.ehr.auth.exception.ResourceNotFoundException;
 import com.ehr.auth.repository.UserRepository;
 import com.ehr.auth.security.JwtTokenProvider;
-import com.ehr.auth.service.AuthService;
 import com.ehr.auth.service.PermissionResolverService;
+import com.ehr.auth.service.UserService;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ class UserControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private AuthService authService;
+    private UserService userService;
 
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
@@ -58,7 +58,7 @@ class UserControllerTest {
                 adminId, null, List.of(
                         new SimpleGrantedAuthority("ROLE_ADMIN"),
                         new SimpleGrantedAuthority("PERMISSION_USER:DELETE")));
-        doNothing().when(authService).deleteUser(any(UUID.class), any(UUID.class));
+        doNothing().when(userService).deleteUser(any(UUID.class), any(UUID.class));
 
         mockMvc.perform(delete(USERS_BY_ID_API_PATH, userId)
                         .with(authentication(adminAuth)))
@@ -85,7 +85,7 @@ class UserControllerTest {
                 adminId, null, List.of(
                         new SimpleGrantedAuthority("ROLE_ADMIN"),
                         new SimpleGrantedAuthority("PERMISSION_USER:DELETE")));
-        doThrow(new ResourceNotFoundException("User not found")).when(authService).deleteUser(any(UUID.class), any(UUID.class));
+        doThrow(new ResourceNotFoundException("User not found")).when(userService).deleteUser(any(UUID.class), any(UUID.class));
 
         mockMvc.perform(delete(USERS_BY_ID_API_PATH, userId)
                         .with(authentication(adminAuth)))

@@ -2,7 +2,8 @@ package com.ehr.auth.controller;
 
 import static com.ehr.auth.constants.ApiPaths.USERS_API_PATH;
 
-import com.ehr.auth.service.AuthService;
+import com.ehr.auth.service.UserService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -17,17 +18,17 @@ import java.util.UUID;
 @RequestMapping(USERS_API_PATH)
 public class UserController {
 
-    private final AuthService authService;
+    private final UserService userService;
 
-    public UserController(AuthService authService) {
-        this.authService = authService;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('PERMISSION_USER:DELETE')")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id, Authentication authentication) {
         UUID currentUserId = (UUID) authentication.getPrincipal();
-        authService.deleteUser(id, currentUserId);
+        userService.deleteUser(id, currentUserId);
         return ResponseEntity.noContent().build();
     }
 }
