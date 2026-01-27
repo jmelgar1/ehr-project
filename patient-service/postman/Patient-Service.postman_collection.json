@@ -192,7 +192,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"icdCode\": \"F43.10\",\n  \"description\": \"Post-traumatic stress disorder, unspecified\",\n  \"diagnosisDate\": \"2024-01-15\",\n  \"status\": \"ACTIVE\"\n}"
+							"raw": "{\n  \"icdCode\": \"F43.10\",\n  \"description\": \"Post-traumatic stress disorder, unspecified\",\n  \"diagnosisDate\": \"2024-02-15\",\n  \"status\": \"ACTIVE\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/patients/{{patient_id}}/diagnoses",
