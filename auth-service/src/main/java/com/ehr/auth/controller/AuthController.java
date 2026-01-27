@@ -6,6 +6,7 @@ import com.ehr.auth.dto.AuthResponse;
 import com.ehr.auth.dto.LoginRequest;
 import com.ehr.auth.dto.RegisterRequest;
 import com.ehr.auth.service.AuthService;
+import com.ehr.auth.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,14 +25,14 @@ public class AuthController {
 
     // TODO: Add rate limiting to prevent registration abuse
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         AuthResponse response = authService.register(request);
         return ResponseEntity.ok(response);
     }
 
     // TODO: Add rate limiting to prevent brute force and credential stuffing attacks
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
