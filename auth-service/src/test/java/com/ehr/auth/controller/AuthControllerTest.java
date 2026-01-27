@@ -9,6 +9,7 @@ import com.ehr.auth.model.enums.UserRole;
 import com.ehr.auth.repository.UserRepository;
 import com.ehr.auth.security.JwtTokenProvider;
 import com.ehr.auth.service.AuthService;
+import com.ehr.auth.service.UserService;
 
 import static com.ehr.auth.utils.AuthControllerTestUtils.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,6 +49,9 @@ class AuthControllerTest {
 
     @MockitoBean
     private AuthService authService;
+
+    @MockitoBean
+    private UserService userService;
 
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
@@ -138,7 +142,7 @@ class AuthControllerTest {
         var adminId = UUID.randomUUID();
         var adminAuth = new UsernamePasswordAuthenticationToken(
                 adminId, null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
-        doNothing().when(authService).deleteUser(any(UUID.class), any(UUID.class));
+        doNothing().when(userService).deleteUser(any(UUID.class), any(UUID.class));
 
         mockMvc.perform(delete("/api/auth/users/{id}", userId)
                         .with(authentication(adminAuth)))
@@ -163,7 +167,7 @@ class AuthControllerTest {
         var adminId = UUID.randomUUID();
         var adminAuth = new UsernamePasswordAuthenticationToken(
                 adminId, null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
-        doThrow(new ResourceNotFoundException("User not found")).when(authService).deleteUser(any(UUID.class), any(UUID.class));
+        doThrow(new ResourceNotFoundException("User not found")).when(userService).deleteUser(any(UUID.class), any(UUID.class));
 
         mockMvc.perform(delete("/api/auth/users/{id}", userId)
                         .with(authentication(adminAuth)))

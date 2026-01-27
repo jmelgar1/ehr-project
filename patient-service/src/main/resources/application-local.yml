@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/ehr_patient_db
+    username: ehr_user
+    password: ehr_password
+  jpa:
+    hibernate:
+      ddl-auto: update
