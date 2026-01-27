@@ -29,7 +29,7 @@ public final class AuthControllerTestUtils {
         return new RegisterRequest(
                 username,
                 username + "@example.com",
-                "password123",
+                "password12345",
                 "Test",
                 "User",
                 role

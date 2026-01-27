@@ -2,7 +2,6 @@ package com.ehr.auth.utils;
 
 import com.ehr.auth.dto.LoginRequest;
 import com.ehr.auth.dto.RegisterRequest;
-import com.ehr.auth.model.User;
 import com.ehr.auth.model.enums.UserRole;
 
 public final class AuthServiceTestUtils {
@@ -13,7 +12,7 @@ public final class AuthServiceTestUtils {
         return new RegisterRequest(
                 username,
                 username + "@example.com",
-                "password123",
+                "password12345",
                 "Test",
                 "User",
                 role
@@ -22,39 +21,15 @@ public final class AuthServiceTestUtils {
 
     public static LoginRequest login(String username) {
         return new LoginRequest(
-            username, 
-            "password123"
+            username,
+            "password12345"
         );
     }
 
     public static LoginRequest login(String username, String password) {
         return new LoginRequest(
-            username, 
+            username,
             password
         );
-    }
-
-    public static User user(String username, UserRole role) {
-        return User.builder()
-                .username(username)
-                .email(username + "@example.com")
-                .password("encodedPassword")
-                .firstName("Test")
-                .lastName("User")
-                .role(role)
-                .enabled(true)
-                .build();
-    }
-
-    public static User user(String username, String password, UserRole role) {
-        return User.builder()
-                .username(username)
-                .email(username + "@example.com")
-                .password(password)
-                .firstName("Test")
-                .lastName("User")
-                .role(role)
-                .enabled(true)
-                .build();
     }
 }
