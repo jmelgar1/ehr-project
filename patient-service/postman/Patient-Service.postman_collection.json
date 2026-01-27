@@ -1,0 +1,448 @@
+{
+	"info": {
+		"_postman_id": "patient-service-collection",
+		"name": "Patient Service",
+		"description": "EHR Patient Service API — Patient Records, Diagnoses, and Medications endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8081",
+			"type": "string"
+		},
+		{
+			"key": "patient_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "diagnosis_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "medication_id",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Patients",
+			"item": [
+				{
+					"name": "Create Patient",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"dateOfBirth\": \"1985-03-15\",\n  \"gender\": \"Male\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"555-123-4567\",\n  \"address\": \"123 Main St\",\n  \"city\": \"Springfield\",\n  \"state\": \"IL\",\n  \"zipCode\": \"62701\",\n  \"emergencyContactName\": \"Jane Doe\",\n  \"emergencyContactPhone\": \"555-987-6543\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/patients",
+							"host": ["{{base_url}}"],
+							"path": ["api", "patients"]
+						},
+						"description": "Create a new patient record"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"patient_id\", jsonData.id);",
+									"    pm.test(\"Patient created successfully\", function () {",
+									"        pm.expect(jsonData.id).to.be.a(\"string\");",
+									"        pm.expect(jsonData.firstName).to.eql(\"John\");",
+									"        pm.expect(jsonData.lastName).to.eql(\"Doe\");",
+									"    });",
+									"}"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "List All Patients",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/patients",
+							"host": ["{{base_url}}"],
+							"path": ["api", "patients"]
+						},
+						"description": "Retrieve all patients"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Returns 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an(\"array\");",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Patient by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/patients/{{patient_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "patients", "{{patient_id}}"]
+						},
+						"description": "Retrieve a patient by their ID"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Returns 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Patient ID matches\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"patient_id\"));",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Update Patient",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"dateOfBirth\": \"1985-03-15\",\n  \"gender\": \"Male\",\n  \"email\": \"john.doe.updated@example.com\",\n  \"phone\": \"555-123-4567\",\n  \"address\": \"456 Oak Ave\",\n  \"city\": \"Springfield\",\n  \"state\": \"IL\",\n  \"zipCode\": \"62702\",\n  \"emergencyContactName\": \"Jane Doe\",\n  \"emergencyContactPhone\": \"555-987-6543\",\n  \"status\": \"ACTIVE\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/patients/{{patient_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "patients", "{{patient_id}}"]
+						},
+						"description": "Update an existing patient record"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Returns 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Email updated\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.email).to.eql(\"john.doe.updated@example.com\");",
+									"});"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Diagnoses",
+			"item": [
+				{
+					"name": "Add Diagnosis to Patient",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"icdCode\": \"F43.10\",\n  \"description\": \"Post-traumatic stress disorder, unspecified\",\n  \"diagnosisDate\": \"2024-01-15\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/patients/{{patient_id}}/diagnoses",
+							"host": ["{{base_url}}"],
+							"path": ["api", "patients", "{{patient_id}}", "diagnoses"]
+						},
+						"description": "Add a new diagnosis to a patient"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"diagnosis_id\", jsonData.id);",
+									"    pm.test(\"Diagnosis created successfully\", function () {",
+									"        pm.expect(jsonData.id).to.be.a(\"string\");",
+									"        pm.expect(jsonData.icdCode).to.eql(\"F43.10\");",
+									"        pm.expect(jsonData.patientId).to.eql(pm.collectionVariables.get(\"patient_id\"));",
+									"    });",
+									"}"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "List Patient Diagnoses",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/patients/{{patient_id}}/diagnoses",
+							"host": ["{{base_url}}"],
+							"path": ["api", "patients", "{{patient_id}}", "diagnoses"]
+						},
+						"description": "Retrieve all diagnoses for a patient"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Returns 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an(\"array\");",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Update Diagnosis",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"icdCode\": \"F43.12\",\n  \"description\": \"Post-traumatic stress disorder, chronic\",\n  \"diagnosisDate\": \"2024-01-15\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/patients/{{patient_id}}/diagnoses/{{diagnosis_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "patients", "{{patient_id}}", "diagnoses", "{{diagnosis_id}}"]
+						},
+						"description": "Update an existing diagnosis"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Returns 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"ICD code updated\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.icdCode).to.eql(\"F43.12\");",
+									"});"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Medications",
+			"item": [
+				{
+					"name": "Add Medication to Patient",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Sertraline\",\n  \"dosage\": \"50mg\",\n  \"frequency\": \"Once daily\",\n  \"startDate\": \"2024-01-15\",\n  \"contraindicated\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/patients/{{patient_id}}/medications",
+							"host": ["{{base_url}}"],
+							"path": ["api", "patients", "{{patient_id}}", "medications"]
+						},
+						"description": "Add a new medication to a patient"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"medication_id\", jsonData.id);",
+									"    pm.test(\"Medication created successfully\", function () {",
+									"        pm.expect(jsonData.id).to.be.a(\"string\");",
+									"        pm.expect(jsonData.name).to.eql(\"Sertraline\");",
+									"        pm.expect(jsonData.patientId).to.eql(pm.collectionVariables.get(\"patient_id\"));",
+									"    });",
+									"}"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "List Patient Medications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/patients/{{patient_id}}/medications",
+							"host": ["{{base_url}}"],
+							"path": ["api", "patients", "{{patient_id}}", "medications"]
+						},
+						"description": "Retrieve all medications for a patient"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Returns 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an(\"array\");",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Update Medication",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Sertraline\",\n  \"dosage\": \"100mg\",\n  \"frequency\": \"Once daily\",\n  \"startDate\": \"2024-01-15\",\n  \"contraindicated\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/patients/{{patient_id}}/medications/{{medication_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "patients", "{{patient_id}}", "medications", "{{medication_id}}"]
+						},
+						"description": "Update an existing medication"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Returns 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Dosage updated\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.dosage).to.eql(\"100mg\");",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Contraindicated Medications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/patients/{{patient_id}}/medications/contraindicated",
+							"host": ["{{base_url}}"],
+							"path": ["api", "patients", "{{patient_id}}", "medications", "contraindicated"]
+						},
+						"description": "Retrieve all contraindicated medications for a patient"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Returns 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an(\"array\");",
+									"});"
+								]
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

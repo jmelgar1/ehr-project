@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -73,11 +73,11 @@ public class Patient {
 
     @Builder.Default
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL)
-    private List<Diagnosis> diagnoses = new ArrayList<>();
+    private Set<Diagnosis> diagnoses = new HashSet<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL)
-    private List<Medication> medications = new ArrayList<>();
+    private Set<Medication> medications = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {
