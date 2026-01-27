@@ -192,7 +192,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"icdCode\": \"F43.10\",\n  \"description\": \"Post-traumatic stress disorder, unspecified\",\n  \"diagnosisDate\": \"2024-01-15\"\n}"
+							"raw": "{\n  \"icdCode\": \"F43.10\",\n  \"description\": \"Post-traumatic stress disorder, unspecified\",\n  \"diagnosisDate\": \"2024-01-15\",\n  \"status\": \"ACTIVE\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/patients/{{patient_id}}/diagnoses",
@@ -265,7 +265,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"icdCode\": \"F43.12\",\n  \"description\": \"Post-traumatic stress disorder, chronic\",\n  \"diagnosisDate\": \"2024-01-15\"\n}"
+							"raw": "{\n  \"icdCode\": \"F43.12\",\n  \"description\": \"Post-traumatic stress disorder, chronic\",\n  \"diagnosisDate\": \"2024-01-15\",\n  \"status\": \"ACTIVE\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/patients/{{patient_id}}/diagnoses/{{diagnosis_id}}",
@@ -310,7 +310,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Sertraline\",\n  \"dosage\": \"50mg\",\n  \"frequency\": \"Once daily\",\n  \"startDate\": \"2024-01-15\",\n  \"contraindicated\": false\n}"
+							"raw": "{\n  \"name\": \"Sertraline\",\n  \"dosage\": \"50mg\",\n  \"frequency\": \"Once daily\",\n  \"status\": \"ACTIVE\",\n  \"startDate\": \"2024-01-15\",\n  \"endDate\": null,\n  \"contraindicated\": false,\n  \"washoutDays\": null,\n  \"washoutNotes\": null\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/patients/{{patient_id}}/medications",
@@ -383,7 +383,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Sertraline\",\n  \"dosage\": \"100mg\",\n  \"frequency\": \"Once daily\",\n  \"startDate\": \"2024-01-15\",\n  \"contraindicated\": false\n}"
+							"raw": "{\n  \"name\": \"Sertraline\",\n  \"dosage\": \"100mg\",\n  \"frequency\": \"Once daily\",\n  \"status\": \"ACTIVE\",\n  \"startDate\": \"2024-01-15\",\n  \"endDate\": null,\n  \"contraindicated\": false,\n  \"washoutDays\": null,\n  \"washoutNotes\": null\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/patients/{{patient_id}}/medications/{{medication_id}}",
