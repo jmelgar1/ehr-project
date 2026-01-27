@@ -1,12 +1,14 @@
 package com.ehr.patient.dto;
 
 import com.ehr.patient.model.enums.DiagnosisStatus;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
 public record CreateDiagnosisRequest(
-        String icdCode,
+        @NotBlank String icdCode,
         String description,
-        LocalDate diagnosisDate,
-        DiagnosisStatus status) {
+        @NotNull LocalDate diagnosisDate,
+        @NotNull DiagnosisStatus status) {
 }

@@ -1,13 +1,16 @@
 package com.ehr.patient.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 
 public record CreatePatientRequest(
-        String firstName,
-        String lastName,
-        LocalDate dateOfBirth,
-        String gender,
-        String email,
+        @NotBlank String firstName,
+        @NotBlank String lastName,
+        @NotNull LocalDate dateOfBirth,
+        @NotBlank String gender,
+        @NotBlank String email,
         String phone,
         String address,
         String city,

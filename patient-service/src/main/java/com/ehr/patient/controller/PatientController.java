@@ -5,6 +5,7 @@ import com.ehr.patient.dto.CreatePatientRequest;
 import com.ehr.patient.dto.PatientResponse;
 import com.ehr.patient.dto.UpdatePatientRequest;
 import com.ehr.patient.service.PatientService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +30,7 @@ public class PatientController {
     }
 
     @PostMapping
-    public ResponseEntity<PatientResponse> createPatient(@RequestBody CreatePatientRequest request) {
+    public ResponseEntity<PatientResponse> createPatient(@Valid @RequestBody CreatePatientRequest request) {
         PatientResponse response = patientService.createPatient(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -48,7 +49,7 @@ public class PatientController {
 
     @PutMapping("/{id}")
     public ResponseEntity<PatientResponse> updatePatient(@PathVariable UUID id,
-                                                         @RequestBody UpdatePatientRequest request) {
+                                                         @Valid @RequestBody UpdatePatientRequest request) {
         PatientResponse response = patientService.updatePatient(id, request);
         return ResponseEntity.ok(response);
     }

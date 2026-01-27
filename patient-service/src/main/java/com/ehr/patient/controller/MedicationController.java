@@ -5,6 +5,7 @@ import com.ehr.patient.dto.CreateMedicationRequest;
 import com.ehr.patient.dto.MedicationResponse;
 import com.ehr.patient.dto.UpdateMedicationRequest;
 import com.ehr.patient.service.MedicationService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +31,7 @@ public class MedicationController {
 
     @PostMapping
     public ResponseEntity<MedicationResponse> addMedication(@PathVariable UUID patientId,
-                                                            @RequestBody CreateMedicationRequest request) {
+                                                            @Valid @RequestBody CreateMedicationRequest request) {
         MedicationResponse response = medicationService.addMedication(patientId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -44,7 +45,7 @@ public class MedicationController {
     @PutMapping("/{medicationId}")
     public ResponseEntity<MedicationResponse> updateMedication(@PathVariable UUID patientId,
                                                                @PathVariable UUID medicationId,
-                                                               @RequestBody UpdateMedicationRequest request) {
+                                                               @Valid @RequestBody UpdateMedicationRequest request) {
         MedicationResponse response = medicationService.updateMedication(patientId, medicationId, request);
         return ResponseEntity.ok(response);
     }

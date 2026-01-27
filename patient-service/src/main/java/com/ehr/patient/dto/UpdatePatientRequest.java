@@ -1,14 +1,16 @@
 package com.ehr.patient.dto;
 
 import com.ehr.patient.model.enums.PatientStatus;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
 public record UpdatePatientRequest(
-        String firstName,
-        String lastName,
-        LocalDate dateOfBirth,
-        String gender,
+        @NotBlank String firstName,
+        @NotBlank String lastName,
+        @NotNull LocalDate dateOfBirth,
+        @NotBlank String gender,
         String email,
         String phone,
         String address,
@@ -17,5 +19,5 @@ public record UpdatePatientRequest(
         String zipCode,
         String emergencyContactName,
         String emergencyContactPhone,
-        PatientStatus status) {
+        @NotNull PatientStatus status) {
 }
