@@ -51,11 +51,11 @@ class AuthServiceTest {
         when(userRepository.existsByEmail("newuser@example.com")).thenReturn(false);
         when(passwordEncoder.encode("password12345")).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(jwtTokenProvider.generateToken(any(User.class))).thenReturn("test-jwt-token");
+        when(jwtTokenProvider.generateAccessToken(any(User.class))).thenReturn("test-jwt-token");
 
         var response = authService.register(request);
 
-        assertThat(response.token()).isEqualTo("test-jwt-token");
+        assertThat(response.accessToken()).isEqualTo("test-jwt-token");
         assertThat(response.username()).isEqualTo("newuser");
         assertThat(response.role()).isEqualTo(UserRole.NURSE);
         verify(userRepository).save(any(User.class));
@@ -91,11 +91,11 @@ class AuthServiceTest {
 
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(passwordEncoder.matches("password12345", "encodedPassword")).thenReturn(true);
-        when(jwtTokenProvider.generateToken(testUser)).thenReturn("login-jwt-token");
+        when(jwtTokenProvider.generateAccessToken(testUser)).thenReturn("login-jwt-token");
 
         var response = authService.login(request);
 
-        assertThat(response.token()).isEqualTo("login-jwt-token");
+        assertThat(response.accessToken()).isEqualTo("login-jwt-token");
         assertThat(response.username()).isEqualTo("testuser");
         assertThat(response.role()).isEqualTo(UserRole.COORDINATOR);
     }

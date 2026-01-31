@@ -17,9 +17,9 @@ public final class AuthControllerTestUtils {
         );
     }
 
-    public static AuthResponse authResponse(String token, String username, UserRole role) {
+    public static AuthResponse authResponse(String accessToken, String username, UserRole role) {
         return new AuthResponse(
-            token, 
+            accessToken,
             username, 
             role
         );

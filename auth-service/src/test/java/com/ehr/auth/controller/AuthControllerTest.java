@@ -61,7 +61,7 @@ class AuthControllerTest {
 
     @Test
     void givenValidRegistrationData_whenRegister_thenReturns200AndAuthResponse() throws Exception {
-        var response = authResponse("jwt-token", "newuser", UserRole.NURSE);
+        var response = authResponse("accessToken", "newuser", UserRole.NURSE);
         when(authService.register(any())).thenReturn(response);
 
         var request = register("newuser", UserRole.NURSE);
@@ -70,7 +70,8 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("jwt-token"))
+                .andExpect(jsonPath("$.accessToken").value("accessToken"))
+                .andExpect(jsonPath("$.refreshToken").value("refreshToken"))
                 .andExpect(jsonPath("$.username").value("newuser"))
                 .andExpect(jsonPath("$.role").value("NURSE"));
     }
@@ -90,7 +91,7 @@ class AuthControllerTest {
 
     @Test
     void givenValidCredentials_whenLogin_thenReturns200AndAuthResponse() throws Exception {
-        var response = authResponse("login-token", "testuser", UserRole.ADMIN);
+        var response = authResponse("accessToken", "testuser", UserRole.ADMIN);
         when(authService.login(any())).thenReturn(response);
 
         var request = login("testuser");
@@ -99,7 +100,8 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("login-token"))
+                .andExpect(jsonPath("$.accessToken").value("accessToken"))
+                .andExpect(jsonPath("$.refreshToken").value("refreshToken"))
                 .andExpect(jsonPath("$.username").value("testuser"))
                 .andExpect(jsonPath("$.role").value("ADMIN"));
     }
@@ -119,7 +121,7 @@ class AuthControllerTest {
 
     @Test
     void givenNoAuthentication_whenAccessAuthEndpoints_thenReturnsOk() throws Exception {
-        var response = authResponse("token", "user", UserRole.NURSE);
+        var response = authResponse("accessToken", "user", UserRole.NURSE);
         when(authService.login(any())).thenReturn(response);
 
         var request = login("user", "pass");
