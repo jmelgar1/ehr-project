@@ -1,11 +1,16 @@
 package com.ehr.auth.service;
 
+import com.ehr.auth.constant.ExceptionMessages;
 import com.ehr.auth.exception.DuplicateResourceException;
 import com.ehr.auth.exception.InvalidCredentialsException;
+import com.ehr.auth.exception.InvalidTokenException;
+import com.ehr.auth.exception.ResourceNotFoundException;
 import com.ehr.auth.model.User;
 import com.ehr.auth.model.enums.UserRole;
 import com.ehr.auth.repository.UserRepository;
 import com.ehr.auth.security.JwtTokenProvider;
+
+import io.jsonwebtoken.JwtException;
 
 import static com.ehr.auth.utils.AuthServiceTestUtils.*;
 import static com.ehr.auth.utils.UserServiceTestUtils.user;
@@ -17,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -69,7 +75,7 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> authService.register(request))
                 .isInstanceOf(DuplicateResourceException.class)
-                .hasMessage("Username already exists");
+                .hasMessage(ExceptionMessages.USERNAME_EXISTS);
     }
 
     @Test
@@ -81,7 +87,7 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> authService.register(request))
                 .isInstanceOf(DuplicateResourceException.class)
-                .hasMessage("Email already exists");
+                .hasMessage(ExceptionMessages.EMAIL_EXISTS);
     }
 
     @Test
@@ -95,9 +101,9 @@ class AuthServiceTest {
 
         var response = authService.login(request);
 
-        assertThat(response.accessToken()).isEqualTo("login-jwt-token");
-        assertThat(response.username()).isEqualTo("testuser");
-        assertThat(response.role()).isEqualTo(UserRole.COORDINATOR);
+        assertThat(response.authResponse().accessToken()).isEqualTo("login-jwt-token");
+        assertThat(response.authResponse().username()).isEqualTo("testuser");
+        assertThat(response.authResponse().role()).isEqualTo(UserRole.COORDINATOR);
     }
 
     @Test
@@ -120,5 +126,44 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> authService.login(request))
                 .isInstanceOf(InvalidCredentialsException.class);
+    }
+
+    @Test
+    void givenValidRefreshToken_whenRefreshAccessToken_thenReturnNewAccessToken() {
+        var refreshToken = "refreshToken";
+        var accessToken = "newAccessToken";
+        var userId = UUID.randomUUID();
+        var testUser = user("testuser", "encodedPassword", UserRole.COORDINATOR);
+
+
+        when(jwtTokenProvider.getUserIdFromToken(refreshToken)).thenReturn(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(jwtTokenProvider.generateAccessToken(testUser)).thenReturn(accessToken);
+
+        var response = authService.refreshAccessToken(refreshToken);
+
+        assertThat(response).isEqualTo(accessToken);
+    }
+
+    @Test
+    void givenNonExistentUser_whenRefreshAccessToken_thenReturnUserNotFound() {
+        var refreshToken = "refreshToken";
+        var userId = UUID.randomUUID();
+
+        when(jwtTokenProvider.getUserIdFromToken(refreshToken)).thenReturn(userId);
+        when(userRepository.findById(userId)).thenThrow(new ResourceNotFoundException(ExceptionMessages.USER_NOT_FOUND));
+
+        assertThatThrownBy(() -> authService.refreshAccessToken(refreshToken))
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void givenInvalidToken_whenRefreshAccessToken_thenInvalidTokenException() {
+        var refreshToken = "invalidRefreshToken";
+
+        when(jwtTokenProvider.getUserIdFromToken(refreshToken)).thenThrow(new JwtException("error"));
+
+        assertThatThrownBy(() -> authService.refreshAccessToken(refreshToken))
+                .isInstanceOf(InvalidTokenException.class);
     }
 }

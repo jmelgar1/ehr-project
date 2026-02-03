@@ -1,5 +1,6 @@
 package com.ehr.auth.service;
 
+import com.ehr.auth.constant.ExceptionMessages;
 import com.ehr.auth.dto.AuthResponse;
 import com.ehr.auth.dto.AuthTokenPair;
 import com.ehr.auth.dto.LoginRequest;
@@ -11,6 +12,8 @@ import com.ehr.auth.exception.ResourceNotFoundException;
 import com.ehr.auth.model.User;
 import com.ehr.auth.repository.UserRepository;
 import com.ehr.auth.security.JwtTokenProvider;
+
+import io.jsonwebtoken.JwtException;
 
 import java.util.UUID;
 
@@ -32,10 +35,10 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.username())) {
-            throw new DuplicateResourceException("Username already exists");
+            throw new DuplicateResourceException(ExceptionMessages.USERNAME_EXISTS);
         }
         if (userRepository.existsByEmail(request.email())) {
-            throw new DuplicateResourceException("Email already exists");
+            throw new DuplicateResourceException(ExceptionMessages.EMAIL_EXISTS);
         }
 
         User user = User.builder()
@@ -73,9 +76,9 @@ public class AuthService {
         try {
             //we implicitly validate tokens inside getUserIdFromToken
             UUID userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
-            User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found")) ;
+            User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException(ExceptionMessages.USER_NOT_FOUND));
             return jwtTokenProvider.generateAccessToken(user);
-        } catch (Exception e) {
+        } catch (JwtException e) {
             throw new InvalidTokenException();
         }
     }

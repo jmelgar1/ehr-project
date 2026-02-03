@@ -1,4 +1,4 @@
-import { createContext, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import instance from '../api/client.ts';
 import type { AuthContextType } from '../types/AuthContextType';
 import type { LoginResponse } from '../types/LoginResponse.ts';
@@ -72,17 +72,25 @@ function AuthProvider({ children }: AuthProviderProps) {
                     }
                 }
             return Promise.reject(error);
-        })
+        });
 
         return () => {
-            instance.interceptors.response.eject(interceptorId)
-        }
-    }, [])
+            instance.interceptors.response.eject(interceptorId);
+        };
+    }, [logout]);
 
     return(
         <AuthContext value={{ token, user, isAuthenticated, login, logout, error }}>
             {children}
         </AuthContext>
     );
+}
+
+function useAuth() {
+    const context = useContext(AuthContext);
+    if(context === null) {
+        throw new Error('useAuth must be used with an AuthProvider');
+    }
+    return context;
 }
 

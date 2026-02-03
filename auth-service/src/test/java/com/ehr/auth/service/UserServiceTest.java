@@ -1,5 +1,6 @@
 package com.ehr.auth.service;
 
+import com.ehr.auth.constant.ExceptionMessages;
 import com.ehr.auth.exception.ResourceNotFoundException;
 import com.ehr.auth.exception.SelfDeletionException;
 import com.ehr.auth.model.enums.UserRole;
@@ -55,7 +56,7 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.deleteUser(userId, currentUserId))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("User not found");
+                .hasMessage(ExceptionMessages.USER_NOT_FOUND);
     }
 
     @Test
@@ -64,6 +65,6 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.deleteUser(userId, userId))
                 .isInstanceOf(SelfDeletionException.class)
-                .hasMessage("Cannot delete your own account");
+                .hasMessage(ExceptionMessages.SELF_DELETION);
     }
 }
