@@ -9,3 +9,5 @@ spring:
 
 jwt:
   secret: dev-secret-key-not-for-production
+  accessExpiration: 3600000
+  refreshExpiration: 2628000000

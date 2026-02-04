@@ -1,6 +1,7 @@
 package com.ehr.auth.utils;
 
 import com.ehr.auth.dto.AuthResponse;
+import com.ehr.auth.dto.AuthTokenPair;
 import com.ehr.auth.dto.LoginRequest;
 import com.ehr.auth.dto.RegisterRequest;
 import com.ehr.auth.model.enums.UserRole;
@@ -17,11 +18,25 @@ public final class AuthControllerTestUtils {
         );
     }
 
-    public static AuthResponse authResponse(String token, String username, UserRole role) {
+    public static AuthResponse authResponse(String accessToken, String username, UserRole role) {
         return new AuthResponse(
-            token, 
+            accessToken,
             username, 
             role
+        );
+    }
+
+    public static AuthTokenPair authTokenPair() {
+        return new AuthTokenPair(
+            authResponse(),
+            "refreshToken"
+        );
+    }
+
+    public static AuthTokenPair authTokenPair(AuthResponse authResponse, String refreshToken) {
+        return new AuthTokenPair(
+            authResponse,
+            refreshToken
         );
     }
 
