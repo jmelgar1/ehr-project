@@ -10,7 +10,7 @@ const AuthContext  = createContext<AuthContextType | null>(null);
 
 type AuthProviderProps = { children: ReactNode };
 
-function AuthProvider({ children }: AuthProviderProps) {
+export function AuthProvider({ children }: AuthProviderProps) {
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [user, setUser] = useState<{ username: string; role: UserRole } | null>(null);
     const [error, setError] = useState<{ error: unknown } | null>(null);
@@ -26,9 +26,11 @@ function AuthProvider({ children }: AuthProviderProps) {
             setToken(response.data.token);
             setUser({ username: response.data.username, role: response.data.role});
             localStorage.setItem('token', response.data.token);
+            return true;
         } catch (error) {
             setError({error});
             console.error('Login failed:', error);
+            return false
         }
     };
 
@@ -86,7 +88,7 @@ function AuthProvider({ children }: AuthProviderProps) {
     );
 }
 
-function useAuth() {
+export function useAuth() {
     const context = useContext(AuthContext);
     if(context === null) {
         throw new Error('useAuth must be used with an AuthProvider');
