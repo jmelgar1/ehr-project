@@ -1,19 +1,17 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import axios from 'axios';
 import instance from '../api/client.ts';
-import type { AuthContextType } from '../types/AuthContextType';
 import type { LoginResponse } from '../types/LoginResponse.ts';
 import { UserRole } from '../types/enums/UserRole.ts'
 import type { RefreshResponse } from '../types/RefreshResponse.ts';
-
-
-const AuthContext  = createContext<AuthContextType | null>(null);
+import { AuthContext } from './AuthContext';
 
 type AuthProviderProps = { children: ReactNode };
 
 export function AuthProvider({ children }: AuthProviderProps) {
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [user, setUser] = useState<{ username: string; role: UserRole } | null>(null);
-    const [error, setError] = useState<{ error: unknown } | null>(null);
+    const [error, setError] = useState<string | null>(null);
     const isRefreshing = useRef(false);
     const refreshPromise = useRef<Promise<string> | null>(null);
     const resolveRef = useRef<((token: string) => void) | null>(null);
@@ -28,7 +26,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
             localStorage.setItem('token', response.data.token);
             return true;
         } catch (error) {
-            setError({error});
+            if (axios.isAxiosError(error)) {
+                setError(error.response?.data?.error);
+            }
             console.error('Login failed:', error);
             return false
         }
@@ -44,6 +44,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const interceptorId = instance.interceptors.response.use((response) => response,
             async (error) => {
                 if(error.response.status === 401) {
+                    if(error.config.url === '/auth/login') {
+                        return Promise.reject(error);
+                    }
+
                     if(isRefreshing.current) {
                         const newToken = await refreshPromise.current;
                         error.config.headers['Authorization'] = `Bearer ${newToken}`;
@@ -87,12 +91,3 @@ export function AuthProvider({ children }: AuthProviderProps) {
         </AuthContext>
     );
 }
-
-export function useAuth() {
-    const context = useContext(AuthContext);
-    if(context === null) {
-        throw new Error('useAuth must be used with an AuthProvider');
-    }
-    return context;
-}
-
