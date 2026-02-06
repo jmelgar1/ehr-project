@@ -2,12 +2,13 @@ import './Button.css'
 
 type ButtonProps = {
     text: string;
+    isDisabled?: boolean;
     onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
-export default function Button({ text, onClick }: ButtonProps) {
+export default function Button({ text, isDisabled, onClick }: ButtonProps) {
     return (
-        <button type="button" onClick={onClick}>
+        <button className="button" type="button" disabled={isDisabled} onClick={onClick}>
             {text}
         </button>
     )

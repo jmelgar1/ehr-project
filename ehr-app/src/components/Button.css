@@ -1,13 +1,22 @@
 .button {
-    background-color: #ad00ff;
+    background-color: #ae00ff88;
     color: white;
     font-weight: bold;
     border: none;
     border-radius: 8px;
     padding: 10px 20px;
     cursor: pointer;
+    user-select: none;
+    caret-color: transparent;
+    outline: none;
 }
 
 .button:hover {
-    opacity: 0.9;
+    filter: brightness(0.85);
+    outline: none;
+}
+
+.button:disabled {
+    filter: brightness(0.50);
+    cursor: not-allowed;
 }
