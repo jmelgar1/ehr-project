@@ -1,11 +1,14 @@
 package com.ehr.auth.security;
 
+import com.ehr.auth.constant.ExceptionMessages;
 import com.ehr.auth.model.User;
 import com.ehr.auth.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import tools.jackson.databind.ObjectMapper;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,10 +30,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    private final ObjectMapper objectMapper;
 
-    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, UserRepository userRepository) {
+    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, 
+                                   UserRepository userRepository,
+                                   ObjectMapper objectMapper) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -47,9 +55,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
                 var authentication = new UsernamePasswordAuthenticationToken(userId, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                // user not found write error directly to response
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write(objectMapper.writeValueAsString(Map.of("error", ExceptionMessages.USER_NOT_FOUND)));
+                return;
             }
         }
-
         filterChain.doFilter(request, response);
     }
 

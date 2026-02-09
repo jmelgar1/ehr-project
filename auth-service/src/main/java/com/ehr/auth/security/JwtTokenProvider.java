@@ -15,26 +15,27 @@ import java.util.UUID;
 public class JwtTokenProvider {
 
     private static final String JWT_SECRET_PROPERTY = "${jwt.secret}";
-    private static final String JWT_EXPIRATION_PROPERTY = "${jwt.expiration}";
+    private static final String JWT_ACCESS_TOKEN_EXPIRATION = "${jwt.accessExpiration}";
+    private static final String JWT_REFRESH_TOKEN_EXPIRATION = "${jwt.refreshExpiration}";
 
     private final SecretKey key;
-    private final long expiration;
+    private final long accessExpiration;
+    private final long refreshExpiration;
 
-    public JwtTokenProvider(@Value(JWT_SECRET_PROPERTY) String secret, @Value(JWT_EXPIRATION_PROPERTY) long expiration) {
+    public JwtTokenProvider(@Value(JWT_SECRET_PROPERTY) String secret, 
+                            @Value(JWT_ACCESS_TOKEN_EXPIRATION) long accessExpiration, 
+                            @Value(JWT_REFRESH_TOKEN_EXPIRATION) long refreshExpiration) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
-        this.expiration = expiration;
+        this.accessExpiration = accessExpiration;
+        this.refreshExpiration = refreshExpiration;
     }
 
-    public String generateToken(User user) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expiration);
+    public String generateAccessToken(User user) {
+        return createToken(user, accessExpiration);
+    }
 
-        return Jwts.builder()
-                .subject(user.getId().toString())
-                .issuedAt(now)
-                .expiration(expiryDate)
-                .signWith(key)
-                .compact();
+    public String generateRefreshToken(User user) {
+        return createToken(user, refreshExpiration);
     }
 
     public boolean validateToken(String token) {
@@ -50,5 +51,15 @@ public class JwtTokenProvider {
         Claims claims = Jwts.parser().verifyWith(key).build()
                 .parseSignedClaims(token).getPayload();
         return UUID.fromString(claims.getSubject());
+    }
+
+    private String createToken(User user, long expiry) {
+        Date now = new Date();
+        return Jwts.builder()
+                .subject(user.getId().toString())
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + expiry))
+                .signWith(key)
+                .compact();
     }
 }

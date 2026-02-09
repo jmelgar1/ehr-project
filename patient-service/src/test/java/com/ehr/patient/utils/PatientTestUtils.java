@@ -8,7 +8,6 @@ import com.ehr.patient.model.enums.PatientStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.UUID;
