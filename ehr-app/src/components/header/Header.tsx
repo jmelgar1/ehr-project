@@ -1,10 +1,14 @@
-import { NavLink } from "react-router-dom";
-import logo from '../assets/justmind.png'
-import profileIcon from '../assets/profile_icon.png'
+import logo from '../../assets/justmind_dark.png'
+import profileIcon from '../../assets/profile_icon.png'
+import calendarIcon from '../../assets/calendar.png'
+import patientIcon from '../../assets/patient.png'
+import sessionIcon from '../../assets/session.png'
+import adminIcon from '../../assets/admin.png'
 import { useState } from "react";
-import { useAuth } from "../contexts/useAuth";
-import { UserRole } from "../types/enums/UserRole";
+import { useAuth } from "../../contexts/useAuth";
+import { UserRole } from "../../types/enums/UserRole";
 import './Header.css';
+import NavCell from "./NavCell";
 
 export default function Header() {
     const authContext = useAuth();
@@ -15,22 +19,13 @@ export default function Header() {
             <img src={logo} alt="Logo" className="header-logo" />
 
             <nav className="header-nav">
-                <NavLink to="/calendar" className={({ isActive }) => isActive ? "tab active" : "tab"}>
-                    Calendar
-                </NavLink>
 
-                <NavLink to="/patient" className={({ isActive }) => isActive ? "tab active" : "tab"}>
-                    Patient
-                </NavLink>
-
-                <NavLink to="/sessions" className={({ isActive }) => isActive ? "tab active" : "tab"}>
-                    Sessions
-                </NavLink>
+                <NavCell to="/calendar" icon={calendarIcon} label="Calendar"/>
+                <NavCell to="/patient" icon={patientIcon} label="Patient"/>
+                <NavCell to="/sessions" icon={sessionIcon} label="Sessions"/>
 
                 {authContext.user?.role === UserRole.ADMIN && (
-                    <NavLink to="/admin" className={({ isActive }) => isActive ? "tab active" : "tab"}>
-                        Admin
-                    </NavLink>
+                    <NavCell to="/admin" icon={adminIcon} label="Admin"/>
                 )}
             </nav>
 

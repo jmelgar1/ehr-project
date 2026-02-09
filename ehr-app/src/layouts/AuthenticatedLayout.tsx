@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
-import Header from "../components/Header";
 import './AuthenticatedLayout.css';
+import Header from "../components/header/Header";
 
 export default function AuthenticatedLayout() {
     return (
