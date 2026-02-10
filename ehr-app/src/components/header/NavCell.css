@@ -1,0 +1,30 @@
+.nav-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 60px;
+    padding: 0 16px;
+    text-decoration: none;
+    color: #666;
+    box-sizing: border-box;
+    border-bottom: 3px solid transparent;
+}
+
+.nav-cell:hover {
+    background-color: #e8e8e8;
+}
+
+.nav-cell.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+}
+
+.nav-cell.active .nav-cell-icon {
+    filter: brightness(0) saturate(100%) invert(40%) sepia(90%) saturate(1000%) hue-rotate(200deg);
+}
+
+.nav-cell-icon {
+    height: 18px;
+    width: 18px;
+}

@@ -21,24 +21,26 @@ export default function LoginPage() {
     return (
         <form>
             <img src={logo} alt="Logo" />
-            <p className="tagline">A unique solution for clinics looking to better manage their practice through innovative and practical technologies.</p>
-            <p className="error-message">{authContext.error}</p>
+            <div className="form-content">
+                <p className="tagline">A unique solution for clinics looking to better manage their practice through innovative and practical technologies.</p>
+                <p className="error-message">{authContext.error}</p>
 
-            <label>
-                <span>Username</span>
-                <input value={username} onChange={(e) => setUsername(e.target.value)}/>
-            </label>
+                <label>
+                    <span>Username</span>
+                    <input value={username} onChange={(e) => setUsername(e.target.value)}/>
+                </label>
 
-            <label>
-                <span>Password</span>
-                <input value={password} onChange={(e) => setPassword(e.target.value)} type={"password"}/>
-            </label>
+                <label>
+                    <span>Password</span>
+                    <input value={password} onChange={(e) => setPassword(e.target.value)} type={"password"}/>
+                </label>
 
-            <Button 
-                text='Login' 
-                isDisabled={username == '' || password == ''} 
-                onClick={loginToHome}
-            />
+                <Button
+                    text='Login'
+                    isDisabled={username == '' || password == ''}
+                    onClick={loginToHome}
+                />
+            </div>
 
         </form>
     )
